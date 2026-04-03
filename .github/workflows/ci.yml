@@ -20,7 +20,7 @@ jobs:
         uses: DeterminateSystems/nix-installer-action@v13
 
       - name: Run Linux CI aggregator
-        run: nix build .#checks.x86_64-linux.ci --accept-flake-config --print-build-logs
+        run: nix build .#checks.x86_64-linux.ci --accept-flake-config
 
   macos:
     runs-on: macos-14
@@ -32,7 +32,7 @@ jobs:
         uses: DeterminateSystems/nix-installer-action@v13
 
       - name: Build Darwin CI aggregator
-        run: nix build .#checks.aarch64-darwin.ci --accept-flake-config --print-build-logs
+        run: nix build .#checks.aarch64-darwin.ci --accept-flake-config
 
       - name: Run HM activation
         run: scripts/hm-activation-macos.sh
