@@ -282,33 +282,24 @@ function stageInstalledRootRuntimeDeps(params) {
 
   const nodeModulesDir = path.join(pluginDir, "node_modules");
   const stampPath = resolveRuntimeDepsStampPath(pluginDir);
-  const stagedNodeModulesDir = path.join(
-    makeTempDir(
-      os.tmpdir(),
-      `openclaw-runtime-deps-${sanitizeTempPrefixSegment(path.basename(pluginDir))}-`,
-    ),
-    "node_modules",
-  );
+  removePathIfExists(nodeModulesDir);
+  fs.mkdirSync(nodeModulesDir, { recursive: true });
 
-  if (!stageInstalledRuntimeTree(rootNodeModulesDir, packageJson, stagedNodeModulesDir)) {
+  if (!stageInstalledRuntimeTree(rootNodeModulesDir, packageJson, nodeModulesDir)) {
     console.error(
       `[nix-openclaw] root runtime staging unavailable for ${path.basename(pluginDir)}: ${
         stageInstalledRuntimeTree.lastFailure ?? "unknown reason"
       }`,
     );
+    removePathIfExists(nodeModulesDir);
     return false;
   }
 
-  try {
-    replaceDir(nodeModulesDir, stagedNodeModulesDir);
-    writeJson(stampPath, {
-      fingerprint,
-      generatedAt: new Date().toISOString(),
-    });
-    return true;
-  } finally {
-    removePathIfExists(path.dirname(stagedNodeModulesDir));
-  }
+  writeJson(stampPath, {
+    fingerprint,
+    generatedAt: new Date().toISOString(),
+  });
+  return true;
 }
 
 function installPluginRuntimeDeps(params) {
