@@ -288,6 +288,34 @@ PY
   fi
 fi
 
+if [ -f src/gateway/test-helpers.mocks.ts ]; then
+  if ! grep -q 'resetConfigRuntimeState' src/gateway/test-helpers.mocks.ts; then
+    python3 - <<'PY'
+from pathlib import Path
+
+path = Path("src/gateway/test-helpers.mocks.ts")
+text = path.read_text()
+text = text.replace(
+    'import type { OpenClawConfig } from "../config/config.js";\n',
+    'import { resetConfigRuntimeState, type OpenClawConfig } from "../config/config.js";\n',
+    1,
+)
+old_env = '  process.env.OPENCLAW_CONFIG_PATH = path.join(root, "openclaw.json");\n'
+new_env = '  process.env.OPENCLAW_CONFIG_PATH = path.join(root, "openclaw.json");\n  resetConfigRuntimeState();\n'
+if old_env not in text:
+    raise SystemExit("expected test-helpers.mocks setTestConfigRoot block not found")
+text = text.replace(old_env, new_env, 1)
+
+old_write = '    await fs.writeFile(configPath, raw, "utf-8");\n'
+new_write = '    await fs.writeFile(configPath, raw, "utf-8");\n    resetConfigRuntimeState();\n'
+if old_write not in text:
+    raise SystemExit("expected test-helpers.mocks writeConfigFile block not found")
+text = text.replace(old_write, new_write, 1)
+path.write_text(text)
+PY
+  fi
+fi
+
 if [ -f src/gateway/server.reload.test.ts ]; then
   if ! grep -q 'allowInsecurePath: true,' src/gateway/server.reload.test.ts; then
     python3 - <<'PY'
@@ -389,6 +417,28 @@ PY
   fi
 fi
 
+if [ -f src/gateway/openresponses-http.test.ts ]; then
+  if ! grep -q 'resetConfigRuntimeState();' src/gateway/openresponses-http.test.ts; then
+    python3 - <<'PY'
+from pathlib import Path
+
+path = Path("src/gateway/openresponses-http.test.ts")
+text = path.read_text()
+text = text.replace(
+    'import { HISTORY_CONTEXT_MARKER } from "../auto-reply/reply/history.js";\n',
+    'import { HISTORY_CONTEXT_MARKER } from "../auto-reply/reply/history.js";\nimport { resetConfigRuntimeState } from "../config/config.js";\n',
+    1,
+)
+old = '  await fs.writeFile(configPath, JSON.stringify(config, null, 2), "utf-8");\n'
+new = '  await fs.writeFile(configPath, JSON.stringify(config, null, 2), "utf-8");\n  resetConfigRuntimeState();\n'
+if old not in text:
+    raise SystemExit("expected openresponses-http writeGatewayConfig block not found")
+text = text.replace(old, new, 1)
+path.write_text(text)
+PY
+  fi
+fi
+
 if [ -f src/gateway/server.cron.test.ts ]; then
   if ! grep -q 'resetConfigRuntimeState();' src/gateway/server.cron.test.ts; then
     python3 - <<'PY'
@@ -406,6 +456,94 @@ new = '  await fs.writeFile(configPath as string, JSON.stringify(config, null, 2
 if old not in text:
     raise SystemExit("expected server.cron writeCronConfig block not found")
 path.write_text(text.replace(old, new, 1))
+PY
+  fi
+fi
+
+if [ -f src/gateway/server.hooks.test.ts ]; then
+  if ! grep -q 'resetConfigRuntimeState' src/gateway/server.hooks.test.ts; then
+    python3 - <<'PY'
+from pathlib import Path
+
+path = Path("src/gateway/server.hooks.test.ts")
+text = path.read_text()
+text = text.replace(
+    'import { resolveMainSessionKeyFromConfig } from "../config/sessions.js";\n',
+    'import { resetConfigRuntimeState } from "../config/config.js";\nimport { resolveMainSessionKeyFromConfig } from "../config/sessions.js";\n',
+    1,
+)
+old = """    await fs.writeFile(
+      configPath!,
+      JSON.stringify({ gateway: { trustedProxies: ["127.0.0.1"] } }, null, 2),
+      "utf-8",
+    );
+"""
+new = """    await fs.writeFile(
+      configPath!,
+      JSON.stringify({ gateway: { trustedProxies: ["127.0.0.1"] } }, null, 2),
+      "utf-8",
+    );
+    resetConfigRuntimeState();
+"""
+if old not in text:
+    raise SystemExit("expected server.hooks trusted proxy config block not found")
+text = text.replace(old, new, 1)
+path.write_text(text)
+PY
+  fi
+fi
+
+if [ -f src/gateway/server.roles-allowlist-update.test.ts ]; then
+  if ! grep -q 'resetConfigRuntimeState' src/gateway/server.roles-allowlist-update.test.ts; then
+    python3 - <<'PY'
+from pathlib import Path
+
+path = Path("src/gateway/server.roles-allowlist-update.test.ts")
+text = path.read_text()
+text = text.replace(
+    'import type { DeviceIdentity } from "../infra/device-identity.js";\n',
+    'import { resetConfigRuntimeState } from "../config/config.js";\nimport type { DeviceIdentity } from "../infra/device-identity.js";\n',
+    1,
+)
+old = '      await fs.writeFile(configPath, JSON.stringify({ update: { channel: "beta" } }, null, 2));\n'
+new = '      await fs.writeFile(configPath, JSON.stringify({ update: { channel: "beta" } }, null, 2));\n      resetConfigRuntimeState();\n'
+if old not in text:
+    raise SystemExit("expected roles allowlist update config write block not found")
+text = text.replace(old, new, 1)
+path.write_text(text)
+PY
+  fi
+fi
+
+if [ -f src/gateway/server.sessions-send.test.ts ]; then
+  if ! grep -q 'resetConfigRuntimeState' src/gateway/server.sessions-send.test.ts; then
+    python3 - <<'PY'
+from pathlib import Path
+
+path = Path("src/gateway/server.sessions-send.test.ts")
+text = path.read_text()
+text = text.replace(
+    'import { resolveSessionTranscriptPath } from "../config/sessions.js";\n',
+    'import { resetConfigRuntimeState } from "../config/config.js";\nimport { resolveSessionTranscriptPath } from "../config/sessions.js";\n',
+    1,
+)
+old = """      await fs.writeFile(
+        configPath,
+        JSON.stringify({ tools: { sessions: { visibility: "all" } } }, null, 2) + "\\n",
+        "utf-8",
+      );
+"""
+new = """      await fs.writeFile(
+        configPath,
+        JSON.stringify({ tools: { sessions: { visibility: "all" } } }, null, 2) + "\\n",
+        "utf-8",
+      );
+      resetConfigRuntimeState();
+"""
+if old not in text:
+    raise SystemExit("expected server.sessions-send config write block not found")
+text = text.replace(old, new, 1)
+path.write_text(text)
 PY
   fi
 fi
