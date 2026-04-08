@@ -63,6 +63,34 @@ PY
   fi
 fi
 
+if [ -f src/gateway/test-temp-config.ts ]; then
+  if ! grep -q "resetConfigRuntimeState" src/gateway/test-temp-config.ts; then
+    python3 - <<'PY'
+from pathlib import Path
+
+path = Path("src/gateway/test-temp-config.ts")
+text = path.read_text()
+text = text.replace(
+    'import path from "node:path";\n',
+    'import path from "node:path";\nimport { resetConfigRuntimeState } from "../config/config.js";\n',
+    1,
+)
+old = """  process.env.OPENCLAW_CONFIG_PATH = configPath;\n\n  try {\n    await writeFile(configPath, JSON.stringify(params.cfg, null, 2), "utf-8");\n    await params.run();\n  } finally {\n"""
+new = """  process.env.OPENCLAW_CONFIG_PATH = configPath;\n  resetConfigRuntimeState();\n\n  try {\n    await writeFile(configPath, JSON.stringify(params.cfg, null, 2), "utf-8");\n    resetConfigRuntimeState();\n    await params.run();\n  } finally {\n"""
+if old not in text:
+    raise SystemExit("expected withTempConfig env setup block not found")
+text = text.replace(old, new, 1)
+
+old = """    if (prevConfigPath === undefined) {\n      delete process.env.OPENCLAW_CONFIG_PATH;\n    } else {\n      process.env.OPENCLAW_CONFIG_PATH = prevConfigPath;\n    }\n    await rm(dir, { recursive: true, force: true });\n  }\n}\n"""
+new = """    if (prevConfigPath === undefined) {\n      delete process.env.OPENCLAW_CONFIG_PATH;\n    } else {\n      process.env.OPENCLAW_CONFIG_PATH = prevConfigPath;\n    }\n    resetConfigRuntimeState();\n    await rm(dir, { recursive: true, force: true });\n  }\n}\n"""
+if old not in text:
+    raise SystemExit("expected withTempConfig cleanup block not found")
+text = text.replace(old, new, 1)
+path.write_text(text)
+PY
+  fi
+fi
+
 if [ -f src/gateway/server.e2e-ws-harness.ts ]; then
   if ! grep -q 'import { testState } from "./test-helpers.mocks.js";' src/gateway/server.e2e-ws-harness.ts; then
     python3 - <<'PY'
