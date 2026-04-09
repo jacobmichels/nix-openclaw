@@ -96,9 +96,14 @@ text = text.replace(old, new, 1)
 
 old = """  const env = params.env ?? process.env;\n  const cacheBucket = resolveHookProviderCacheBucket({\n"""
 new = """  const env = params.env ?? process.env;\n  if (shouldSkipProviderRuntimeForTest(env)) {\n    return [];\n  }\n  const cacheBucket = resolveHookProviderCacheBucket({\n"""
-if old not in text:
+old_with_workspace = """  const env = params.env ?? process.env;\n  const workspaceDir = params.workspaceDir ?? getActivePluginRegistryWorkspaceDirFromState();\n  const cacheBucket = resolveHookProviderCacheBucket({\n"""
+new_with_workspace = """  const env = params.env ?? process.env;\n  if (shouldSkipProviderRuntimeForTest(env)) {\n    return [];\n  }\n  const workspaceDir = params.workspaceDir ?? getActivePluginRegistryWorkspaceDirFromState();\n  const cacheBucket = resolveHookProviderCacheBucket({\n"""
+if old in text:
+    text = text.replace(old, new, 1)
+elif old_with_workspace in text:
+    text = text.replace(old_with_workspace, new_with_workspace, 1)
+else:
     raise SystemExit("expected resolveProviderPluginsForHooks env block not found")
-text = text.replace(old, new, 1)
 
 path.write_text(text)
 PY
