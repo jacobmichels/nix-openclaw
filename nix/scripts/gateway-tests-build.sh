@@ -48,4 +48,9 @@ fi
 
 log_step "patchShebangs node_modules/.bin" bash -e -c ". \"$STDENV_SETUP\"; patchShebangs node_modules/.bin"
 
-log_step "pnpm build:strict-smoke" pnpm build:strict-smoke
+log_step "node scripts/tsdown-build.mjs" node scripts/tsdown-build.mjs
+log_step "node scripts/runtime-postbuild.mjs" node scripts/runtime-postbuild.mjs
+log_step "node scripts/build-stamp.mjs" node scripts/build-stamp.mjs
+log_step "pnpm build:plugin-sdk:dts" pnpm build:plugin-sdk:dts
+log_step "node --import tsx scripts/write-plugin-sdk-entry-dts.ts" node --import tsx scripts/write-plugin-sdk-entry-dts.ts
+log_step "node scripts/check-plugin-sdk-exports.mjs" node scripts/check-plugin-sdk-exports.mjs
