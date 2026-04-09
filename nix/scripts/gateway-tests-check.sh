@@ -16,11 +16,7 @@ export OPENCLAW_LOG_DIR="${TMPDIR}/openclaw-logs"
 mkdir -p "$OPENCLAW_LOG_DIR"
 mkdir -p /tmp/openclaw || true
 chmod 700 /tmp/openclaw || true
-if [ -d "$PWD/dist-runtime/extensions" ]; then
-  export OPENCLAW_BUNDLED_PLUGINS_DIR="$PWD/dist-runtime/extensions"
-else
-  unset OPENCLAW_BUNDLED_PLUGINS_DIR
-fi
+unset OPENCLAW_BUNDLED_PLUGINS_DIR
 export VITEST_POOL="forks"
 export VITEST_MIN_WORKERS="2"
 export VITEST_MAX_WORKERS="2"
