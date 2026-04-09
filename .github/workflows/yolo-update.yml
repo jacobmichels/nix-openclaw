@@ -1,13 +1,11 @@
 name: Yolo Update Pins
 
 on:
-  schedule:
-    - cron: "5 * * * *"
   workflow_dispatch: {}
 
 permissions:
   actions: read
-  contents: write
+  contents: read
 
 concurrency:
   group: yolo-update-pins
@@ -46,6 +44,9 @@ jobs:
     needs: guard
     if: ${{ needs.guard.outputs.should_run == 'true' }}
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
