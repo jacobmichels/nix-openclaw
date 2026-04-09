@@ -63,6 +63,23 @@ PY
   fi
 fi
 
+if [ -f src/gateway/test-helpers.server.ts ]; then
+  if ! grep -q "Flush config/session caches before each fresh gateway start." src/gateway/test-helpers.server.ts; then
+    python3 - <<'PY'
+from pathlib import Path
+
+path = Path("src/gateway/test-helpers.server.ts")
+text = path.read_text()
+
+old = """export async function startGatewayServer(port: number, opts?: GatewayServerOptions) {\n  const mod = await getServerModule();\n"""
+new = """export async function startGatewayServer(port: number, opts?: GatewayServerOptions) {\n  if (hasUnsyncedGatewayTestSessionConfig()) {\n    await persistTestSessionConfig();\n  }\n  // Flush config/session caches before each fresh gateway start.\n  resetConfigRuntimeState();\n  clearSessionStoreCacheForTest();\n  const mod = await getServerModule();\n"""
+if old not in text:
+    raise SystemExit("expected startGatewayServer helper block not found")
+path.write_text(text.replace(old, new, 1))
+PY
+  fi
+fi
+
 if [ -f src/plugins/provider-runtime.ts ]; then
   if ! grep -q "shouldSkipProviderRuntimeForTest" src/plugins/provider-runtime.ts; then
     python3 - <<'PY'
