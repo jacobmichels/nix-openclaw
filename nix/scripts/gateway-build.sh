@@ -93,3 +93,7 @@ log_step "pnpm prune --prod" env CI=true pnpm prune --prod
 
 # Reduce output size (pnpm implementation detail; safe to remove)
 rm -rf node_modules/.pnpm/node_modules
+
+# pnpm prune can leave orphaned .bin links behind for removed prod deps.
+# Keep install-phase symlink validation strict by dropping only broken links here.
+find node_modules -xtype l -delete
