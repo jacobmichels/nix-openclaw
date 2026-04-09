@@ -109,4 +109,7 @@ log_step "node --import tsx scripts/write-plugin-sdk-entry-dts.ts" node --import
 if [ -f "scripts/copy-plugin-sdk-root-alias.mjs" ]; then
   log_step "node scripts/copy-plugin-sdk-root-alias.mjs" node scripts/copy-plugin-sdk-root-alias.mjs
 fi
+if [ -f "scripts/copy-bundled-plugin-metadata.mjs" ]; then
+  log_step "node scripts/copy-bundled-plugin-metadata.mjs" node scripts/copy-bundled-plugin-metadata.mjs
+fi
 log_step "node scripts/check-plugin-sdk-exports.mjs" node scripts/check-plugin-sdk-exports.mjs

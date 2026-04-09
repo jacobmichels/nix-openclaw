@@ -85,6 +85,9 @@ log_step "build: write-plugin-sdk-entry-dts" node --import tsx scripts/write-plu
 if [ -f "scripts/copy-plugin-sdk-root-alias.mjs" ]; then
   log_step "build: copy-plugin-sdk-root-alias" node scripts/copy-plugin-sdk-root-alias.mjs
 fi
+if [ -f "scripts/copy-bundled-plugin-metadata.mjs" ]; then
+  log_step "build: copy-bundled-plugin-metadata" node scripts/copy-bundled-plugin-metadata.mjs
+fi
 log_step "build: canvas-a2ui-copy" node --import tsx scripts/canvas-a2ui-copy.ts
 log_step "build: copy-hook-metadata" node --import tsx scripts/copy-hook-metadata.ts
 log_step "build: write-build-info" node --import tsx scripts/write-build-info.ts
