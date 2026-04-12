@@ -1,4 +1,4 @@
-# Generated from upstream OpenClaw schema at rev 44e5b62c27e088128e32e209c146de346c3ea7e6. DO NOT EDIT.
+# Generated from upstream OpenClaw schema at rev 769908ec3f713ecde067eb8c8aa54d8f57217aff. DO NOT EDIT.
 # Generator: nix/scripts/generate-config-options.ts
 { lib }:
 let
@@ -668,7 +668,7 @@ in
         idleTimeoutSeconds = lib.mkOption {
           type = t.nullOr (t.int);
           default = null;
-          description = "Idle timeout for LLM streaming responses in seconds. If no token is received within this time, the request is aborted. Set to 0 to disable. Default: 60 seconds.";
+          description = "Idle timeout for LLM streaming responses in seconds. If no token is received within this time, the request is aborted. Set to 0 to disable. Default: 120 seconds.";
         };
       }; });
         default = null;
@@ -3673,6 +3673,10 @@ in
     };
     controlUi = lib.mkOption {
       type = t.nullOr (t.submodule { options = {
+      allowExternalEmbedUrls = lib.mkOption {
+        type = t.nullOr (t.bool);
+        default = null;
+      };
       allowInsecureAuth = lib.mkOption {
         type = t.nullOr (t.bool);
         default = null;
@@ -3691,6 +3695,10 @@ in
       };
       dangerouslyDisableDeviceAuth = lib.mkOption {
         type = t.nullOr (t.bool);
+        default = null;
+      };
+      embedSandbox = lib.mkOption {
+        type = t.nullOr (t.oneOf [ (t.enum [ "strict" ]) (t.enum [ "scripts" ]) (t.enum [ "trusted" ]) ]);
         default = null;
       };
       enabled = lib.mkOption {
@@ -6889,6 +6897,15 @@ in
     };
     media = lib.mkOption {
       type = t.nullOr (t.submodule { options = {
+      asyncCompletion = lib.mkOption {
+        type = t.nullOr (t.submodule { options = {
+        directSend = lib.mkOption {
+          type = t.nullOr (t.bool);
+          default = null;
+        };
+      }; });
+        default = null;
+      };
       audio = lib.mkOption {
         type = t.nullOr (t.submodule { options = {
         attachments = lib.mkOption {
