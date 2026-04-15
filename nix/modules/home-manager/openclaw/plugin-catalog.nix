@@ -20,7 +20,7 @@
   sag = {
     tool = "sag";
     description = "Text-to-speech";
-    linux = true;
+    linux = false;
   };
 
   camsnap = {
